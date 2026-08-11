@@ -1,6 +1,6 @@
 FROM php:8.5-cli
 
-# Install system dependencies & Node.js
+# System dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,31 +10,43 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nodejs \
-    npm
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# PHP extensions
+RUN docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd
 
-# Get latest Composer
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /app
 
-# Copy project files
+# Copy application
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader -vvv
+# Install Laravel dependencies
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --prefer-dist \
+    -vvv
 
-# Install Node dependencies and build frontend
-RUN npm install && npm run build
+# Install frontend dependencies
+RUN npm ci
 
-# Set permissions
-RUN chmod -R 777 storage bootstrap/cache
+# Build React / Vite
+RUN npm run build
 
-# Expose port 3000 (or the port Coolify uses)
+# Laravel writable directories
+RUN chmod -R 775 storage bootstrap/cache
+
 EXPOSE 3000
 
-# Start Laravel built-in server (or use public folder)
-CMD php artisan serve --host=0.0.0.0 --port=3000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=3000"]
