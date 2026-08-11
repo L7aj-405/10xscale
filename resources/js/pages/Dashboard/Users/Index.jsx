@@ -5,7 +5,7 @@ import Pagination from '../../../Components/Dashboard/Pagination';
 import SearchForm from '../../../Components/Dashboard/SearchForm';
 
 export default function Index({ filters, users }) {
-    const currentUser = usePage().props.auth.user;
+    const currentUser = usePage().props.auth?.user ?? null;
 
     const removeUser = (user) => {
         if (window.confirm(`Delete ${user.name}? This action cannot be undone.`)) {

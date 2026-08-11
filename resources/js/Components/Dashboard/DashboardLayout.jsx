@@ -13,10 +13,12 @@ const navigation = [
 
 export default function DashboardLayout({ children, title }) {
     const { auth, flash } = usePage().props;
+    console.log('INERTIA PROPS:', usePage().props);
+console.log('AUTH:', auth);
     const { url } = usePage();
     const { isDark, toggleTheme } = useTheme();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const user = auth.user;
+    const user = auth?.user ?? null;
 
     useEffect(() => setSidebarOpen(false), [url]);
 
