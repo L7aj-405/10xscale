@@ -1,0 +1,176 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant rtl (&:where([dir='rtl'], [dir='rtl'] *));
+
+@source '../js/**/*.jsx';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+:root {
+    --site-accent-color: #ffe81a;
+    --site-accent-text-color: #0b0b0b;
+    --site-danger-color: #d92d20;
+    --site-light-page-color: #ffffff;
+    --site-light-surface-color: #ffffff;
+    --site-light-muted-color: #f1efe9;
+    --site-light-text-color: #0b0b0b;
+    --site-light-border-color: #0b0b0b;
+    --site-dark-page-color: #0c0c0d;
+    --site-dark-surface-color: #161618;
+    --site-dark-muted-color: #202024;
+    --site-dark-text-color: #f7f7f2;
+    --site-dark-border-color: #efefe9;
+    --site-nav-background-color: #0b0b0b;
+    --site-nav-panel-color: #1c1c1c;
+    --site-nav-text-color: #ffffff;
+    --site-font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --site-font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme {
+    --font-sans: var(--site-font-sans);
+    --font-display: var(--site-font-display);
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --color-ink: var(--site-light-text-color);
+    --color-paper: var(--site-light-page-color);
+    --color-stone: var(--site-light-muted-color);
+    --color-marker: var(--site-accent-color);
+    --color-leak: var(--site-danger-color);
+    --color-page: var(--site-light-page-color);
+    --color-surface: var(--site-light-surface-color);
+    --color-surface-muted: var(--site-light-muted-color);
+    --color-foreground: var(--site-light-text-color);
+    --color-copy: color-mix(in srgb, var(--site-light-text-color) 82%, var(--site-light-surface-color));
+    --color-copy-strong: color-mix(in srgb, var(--site-light-text-color) 90%, var(--site-light-surface-color));
+    --color-copy-muted: color-mix(in srgb, var(--site-light-text-color) 68%, var(--site-light-surface-color));
+    --color-copy-subtle: color-mix(in srgb, var(--site-light-text-color) 60%, var(--site-light-surface-color));
+    --color-copy-faint: color-mix(in srgb, var(--site-light-text-color) 54%, var(--site-light-surface-color));
+    --color-border: var(--site-light-border-color);
+    --color-border-soft: color-mix(in srgb, var(--site-light-border-color) 16%, var(--site-light-surface-color));
+    --color-nav: var(--site-nav-background-color);
+    --color-nav-panel: var(--site-nav-panel-color);
+    --color-nav-hover: color-mix(in srgb, var(--site-nav-panel-color) 82%, var(--site-nav-text-color));
+    --color-on-nav: var(--site-nav-text-color);
+    --color-on-nav-muted: color-mix(in srgb, var(--site-nav-text-color) 88%, transparent);
+    --color-on-dark-muted: color-mix(in srgb, var(--site-nav-text-color) 80%, transparent);
+    --color-footer-muted: color-mix(in srgb, var(--site-nav-text-color) 62%, transparent);
+    --color-marker-ink: var(--site-accent-text-color);
+}
+
+.dark {
+    --color-page: var(--site-dark-page-color);
+    --color-surface: var(--site-dark-surface-color);
+    --color-surface-muted: var(--site-dark-muted-color);
+    --color-foreground: var(--site-dark-text-color);
+    --color-copy: color-mix(in srgb, var(--site-dark-text-color) 84%, var(--site-dark-surface-color));
+    --color-copy-strong: color-mix(in srgb, var(--site-dark-text-color) 94%, var(--site-dark-surface-color));
+    --color-copy-muted: color-mix(in srgb, var(--site-dark-text-color) 72%, var(--site-dark-surface-color));
+    --color-copy-subtle: color-mix(in srgb, var(--site-dark-text-color) 64%, var(--site-dark-surface-color));
+    --color-copy-faint: color-mix(in srgb, var(--site-dark-text-color) 56%, var(--site-dark-surface-color));
+    --color-border: var(--site-dark-border-color);
+    --color-border-soft: color-mix(in srgb, var(--site-dark-border-color) 18%, var(--site-dark-surface-color));
+    --color-footer-muted: color-mix(in srgb, var(--site-nav-text-color) 65%, transparent);
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        min-width: 320px;
+        background: var(--color-page);
+        color: var(--color-foreground);
+        font-family: var(--font-sans);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    select {
+        font: inherit;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    button {
+        font-family: var(--site-font-display) !important;
+    }
+
+    ::selection {
+        background: var(--color-marker);
+        color: var(--color-marker-ink);
+    }
+
+    body,
+    body *,
+    body *::before,
+    body *::after {
+        transition-property: background-color, border-color, color, fill, stroke;
+        transition-duration: 250ms;
+        transition-timing-function: ease;
+    }
+}
+
+html[lang='ar'] body,
+html[lang='ar'] h1,
+html[lang='ar'] h2,
+html[lang='ar'] h3,
+html[lang='ar'] button,
+html[lang='ar'] input,
+html[lang='ar'] select,
+html[lang='ar'] summary {
+    font-family: 'Noto Sans Arabic', var(--font-sans) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    body,
+    body *,
+    body *::before,
+    body *::after {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@keyframes brand-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+.brand-marquee-track {
+    animation: brand-scroll 30s linear infinite;
+}
+
+.brand-marquee-window:hover .brand-marquee-track {
+    animation-play-state: paused;
+}
+
+[dir='rtl'] .brand-marquee-track {
+    animation-direction: reverse;
+}
+
+.case-media-pattern:not(.case-media-video) {
+    background-image: repeating-linear-gradient(-45deg, transparent, transparent 12px, color-mix(in srgb, var(--color-border-soft) 55%, transparent) 12px, color-mix(in srgb, var(--color-border-soft) 55%, transparent) 24px);
+}
+
+.blog-cover-pattern::before {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    background: repeating-linear-gradient(120deg, transparent 0 22px, rgb(11 11 11 / 8%) 22px 24px);
+    transform: rotate(-8deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .brand-marquee-track {
+        animation: none;
+    }
+}
