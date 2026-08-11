@@ -39,7 +39,7 @@ RUN composer install \
     -vvv
 
 # Install frontend dependencies
-RUN npm ci
+RUN npm install
 
 # Build React / Vite
 RUN npm run build
