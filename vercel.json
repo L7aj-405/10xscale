@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "framework": "laravel",
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "installCommand": "composer install --no-dev && npm install"
+}
