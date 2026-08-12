@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nodejs \
     npm \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # PHP extensions
@@ -47,6 +48,9 @@ RUN npm run build
 # Laravel writable directories
 RUN chmod -R 775 storage bootstrap/cache
 
+# Run the existing web server and the integrations queue worker together.
+COPY docker/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+
 EXPOSE 3000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=3000"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
