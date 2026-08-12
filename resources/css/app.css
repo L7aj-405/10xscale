@@ -117,14 +117,22 @@
 }
 
 html[lang='ar'] body,
-html[lang='ar'] h1,
-html[lang='ar'] h2,
-html[lang='ar'] h3,
-html[lang='ar'] button,
 html[lang='ar'] input,
 html[lang='ar'] select,
 html[lang='ar'] summary {
-    font-family: 'Noto Sans Arabic', var(--font-sans) !important;
+    font-family: var(--site-font-sans) !important;
+}
+
+html[lang='ar'] h1,
+html[lang='ar'] h2,
+html[lang='ar'] h3,
+html[lang='ar'] h4,
+html[lang='ar'] button {
+    font-family: var(--site-font-display) !important;
+}
+
+.font-\[Archivo\] {
+    font-family: var(--site-font-display) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

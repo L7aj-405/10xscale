@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\Schema;
 
 class SiteAppearance extends Model
 {
+    public const FONT_OPTIONS = [
+        'instrument-sans' => 'Instrument Sans',
+        'archivo' => 'Archivo',
+        'inter' => 'Inter',
+        'manrope' => 'Manrope',
+        'space-grotesk' => 'Space Grotesk',
+    ];
+
     public const DEFAULTS = [
         'accent_color' => '#FFE81A',
         'accent_text_color' => '#0B0B0B',
@@ -26,6 +34,8 @@ class SiteAppearance extends Model
         'nav_text_color' => '#FFFFFF',
         'body_font' => 'instrument-sans',
         'display_font' => 'archivo',
+        'light_logo_path' => null,
+        'dark_logo_path' => null,
     ];
 
     protected $fillable = [
@@ -47,10 +57,12 @@ class SiteAppearance extends Model
         'nav_text_color',
         'body_font',
         'display_font',
+        'light_logo_path',
+        'dark_logo_path',
     ];
 
     /**
-     * @return array<string, string>
+     * @return array<string, string|null>
      */
     public static function current(): array
     {
@@ -64,5 +76,41 @@ class SiteAppearance extends Model
             self::DEFAULTS,
             $appearance?->only(array_keys(self::DEFAULTS)) ?? [],
         );
+    }
+
+    /**
+     * Return browser-safe appearance settings with versioned logo URLs.
+     *
+     * @return array<string, bool|string|null>
+     */
+    public static function shared(): array
+    {
+        $appearance = self::current();
+        $hasLightLogo = filled($appearance['light_logo_path']);
+        $hasDarkLogo = filled($appearance['dark_logo_path']);
+        $hasLogo = $hasLightLogo || $hasDarkLogo;
+        $version = Schema::hasTable('site_appearances')
+            ? static::query()->find(1)?->updated_at?->getTimestamp()
+            : null;
+
+        unset($appearance['light_logo_path'], $appearance['dark_logo_path']);
+
+        $logoUrl = function (string $mode) use ($hasLogo, $version): ?string {
+            if (! $hasLogo) {
+                return null;
+            }
+
+            $url = route('site-appearance.logo', ['mode' => $mode], absolute: false);
+
+            return $version ? $url.'?v='.$version : $url;
+        };
+
+        return [
+            ...$appearance,
+            'has_light_logo' => $hasLightLogo,
+            'has_dark_logo' => $hasDarkLogo,
+            'light_logo_url' => $logoUrl('light'),
+            'dark_logo_url' => $logoUrl('dark'),
+        ];
     }
 }

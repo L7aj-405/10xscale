@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\SiteAppearance;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class UpdateSiteAppearanceRequest extends FormRequest
 {
@@ -36,8 +38,10 @@ class UpdateSiteAppearanceRequest extends FormRequest
             'nav_background_color' => $color,
             'nav_panel_color' => $color,
             'nav_text_color' => $color,
-            'body_font' => ['required', Rule::in(['instrument-sans', 'archivo'])],
-            'display_font' => ['required', Rule::in(['archivo', 'instrument-sans'])],
+            'body_font' => ['required', Rule::in(array_keys(SiteAppearance::FONT_OPTIONS))],
+            'display_font' => ['required', Rule::in(array_keys(SiteAppearance::FONT_OPTIONS))],
+            'light_logo' => ['nullable', File::image()->types(['png', 'jpg', 'jpeg', 'webp'])->max(5 * 1024)],
+            'dark_logo' => ['nullable', File::image()->types(['png', 'jpg', 'jpeg', 'webp'])->max(5 * 1024)],
         ];
     }
 

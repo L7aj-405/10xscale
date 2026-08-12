@@ -57,7 +57,7 @@ class HandleInertiaRequests extends Middleware
                 'thankYou' => fn () => route('thank-you', absolute: false),
                 'dashboardAuditRequests' => fn () => route('dashboard.audit-requests.index', absolute: false),
             ],
-            'siteAppearance' => fn () => SiteAppearance::current(),
+            'siteAppearance' => fn () => SiteAppearance::shared(),
         ];
     }
 }

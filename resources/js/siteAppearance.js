@@ -18,8 +18,11 @@ const variableMap = {
 };
 
 export const fontStacks = {
-    'instrument-sans': "'Instrument Sans', ui-sans-serif, system-ui, sans-serif",
-    archivo: "'Archivo', ui-sans-serif, system-ui, sans-serif",
+    'instrument-sans': "'Instrument Sans', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif",
+    archivo: "'Archivo', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif",
+    inter: "'Inter', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif",
+    manrope: "'Manrope', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif",
+    'space-grotesk': "'Space Grotesk', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif",
 };
 
 export function applySiteAppearance(appearance = {}) {

@@ -9,6 +9,7 @@ use App\Http\Controllers\Dashboard\SiteAppearanceController;
 use App\Http\Controllers\Dashboard\TeamMemberController as DashboardTeamMemberController;
 use App\Http\Controllers\Dashboard\UserController as DashboardUserController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\SiteAppearanceLogoController;
 use App\Http\Controllers\TeamMemberPhotoController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,9 @@ Route::get('/brand-logos/{brandLogo}/image', BrandLogoImageController::class)
     ->name('brand-logos.image');
 Route::get('/team-members/{teamMember}/photo', TeamMemberPhotoController::class)
     ->name('team-members.photo');
+Route::get('/site-appearance/logo/{mode}', SiteAppearanceLogoController::class)
+    ->whereIn('mode', ['light', 'dark'])
+    ->name('site-appearance.logo');
 
 Route::middleware(['auth', 'dashboard.role'])
     ->prefix('dashboard')

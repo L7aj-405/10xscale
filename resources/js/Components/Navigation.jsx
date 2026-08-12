@@ -82,15 +82,11 @@ export default function Navigation() {
                 className="relative mx-auto max-w-[1280px] rounded-[30px] bg-nav shadow-[0_8px_28px_rgba(0,0,0,0.18)] min-[1280px]:rounded-full"
             >
                 <MobileHeader
+                    auditHref={auditHref}
                     homeHref={homeHref}
-                    isDark={isDark}
-                    language={language}
-                    languages={languages}
                     menuOpen={menuOpen}
-                    setLanguage={setLanguage}
                     setMenuOpen={setMenuOpen}
                     t={t}
-                    toggleTheme={toggleTheme}
                 />
 
                 <DesktopHeader
@@ -110,7 +106,7 @@ export default function Navigation() {
 
                 {menuOpen ? (
                     <div
-                        className="absolute inset-x-0 top-[calc(100%+8px)] overflow-hidden rounded-[22px] border border-white/15 bg-nav p-2 shadow-[0_12px_30px_rgba(0,0,0,0.28)] min-[1280px]:hidden"
+                        className="absolute inset-x-0 top-[calc(100%+8px)] max-h-[calc(100vh-88px)] overflow-y-auto rounded-[22px] border border-white/15 bg-nav p-2 shadow-[0_12px_30px_rgba(0,0,0,0.28)] min-[1280px]:hidden"
                         dir={language === 'ar' ? 'rtl' : 'ltr'}
                         id="mobile-navigation"
                     >
@@ -132,6 +128,14 @@ export default function Navigation() {
                                 </a>
                             );
                         })}
+                        <MobilePreferences
+                            isDark={isDark}
+                            language={language}
+                            languages={languages}
+                            setLanguage={setLanguage}
+                            t={t}
+                            toggleTheme={toggleTheme}
+                        />
                         <a
                             className="mt-1 block rounded-2xl bg-marker px-4 py-3 text-center font-[Archivo] text-sm font-extrabold text-marker-ink no-underline"
                             href={auditHref}
@@ -146,7 +150,7 @@ export default function Navigation() {
     );
 }
 
-function MobileHeader({ homeHref, isDark, language, languages, menuOpen, setLanguage, setMenuOpen, t, toggleTheme }) {
+function MobileHeader({ auditHref, homeHref, menuOpen, setMenuOpen, t }) {
     return (
         <div className="relative flex h-[60px] items-center px-2 min-[1280px]:hidden" dir="ltr">
             <MenuToggle menuOpen={menuOpen} onClick={() => setMenuOpen((open) => !open)} t={t} />
@@ -155,9 +159,37 @@ function MobileHeader({ homeHref, isDark, language, languages, menuOpen, setLang
                 <BrandLogo className="h-[25px] w-auto min-[420px]:h-[27px]" />
             </LogoLink>
 
-            <div className="ml-auto flex shrink-0 items-center gap-1.5 rtl:order-first rtl:ml-0 min-[420px]:gap-2">
-                <LanguageSwitcher id="language-switcher-mobile" language={language} languages={languages} onChange={setLanguage} t={t} />
-                <ThemeToggle isDark={isDark} onClick={toggleTheme} t={t} />
+            <a
+                className="ml-auto shrink-0 rounded-full bg-marker px-3 py-2 font-[Archivo] text-[11px] font-extrabold whitespace-nowrap text-marker-ink no-underline transition-[background-color,transform] hover:bg-white active:scale-[0.97] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white rtl:order-first rtl:ml-0 min-[420px]:px-4 min-[420px]:text-xs"
+                href={auditHref}
+            >
+                {t('nav.audit')}
+            </a>
+        </div>
+    );
+}
+
+function MobilePreferences({ isDark, language, languages, setLanguage, t, toggleTheme }) {
+    return (
+        <div className="my-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+            <p className="mb-2 px-1 font-['IBM_Plex_Mono'] text-[10px] font-semibold tracking-[0.12em] text-on-nav-muted uppercase">
+                {t('nav.language')} · {isDark ? t('nav.lightMode') : t('nav.darkMode')}
+            </p>
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                <LanguageSwitcher
+                    className="h-11 w-full rounded-xl px-3 text-start"
+                    id="language-switcher-mobile-menu"
+                    language={language}
+                    languages={languages}
+                    onChange={setLanguage}
+                    t={t}
+                />
+                <ThemeToggle
+                    className="size-11 rounded-xl"
+                    isDark={isDark}
+                    onClick={toggleTheme}
+                    t={t}
+                />
             </div>
         </div>
     );
@@ -237,7 +269,7 @@ function MenuToggle({ menuOpen, onClick, t }) {
     );
 }
 
-function LanguageSwitcher({ id, language, languages, onChange, t }) {
+function LanguageSwitcher({ className = '', id, language, languages, onChange, t }) {
     return (
         <>
             <label className="sr-only" htmlFor={id}>
@@ -245,7 +277,7 @@ function LanguageSwitcher({ id, language, languages, onChange, t }) {
             </label>
             <select
                 aria-label={t('nav.language')}
-                className="h-9 w-14 cursor-pointer rounded-full border border-white/25 bg-white/10 px-2 text-center font-['IBM_Plex_Mono'] text-xs font-semibold text-on-nav outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-marker min-[420px]:h-10"
+                className={`h-9 w-14 cursor-pointer rounded-full border border-white/25 bg-white/10 px-2 text-center font-['IBM_Plex_Mono'] text-xs font-semibold text-on-nav outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-marker min-[420px]:h-10 ${className}`}
                 id={id}
                 onChange={(event) => onChange(event.target.value)}
                 value={language}
@@ -260,12 +292,12 @@ function LanguageSwitcher({ id, language, languages, onChange, t }) {
     );
 }
 
-function ThemeToggle({ isDark, onClick, t }) {
+function ThemeToggle({ className = '', isDark, onClick, t }) {
     return (
         <button
             aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
             aria-pressed={isDark}
-            className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border border-white/25 bg-white/10 text-on-nav transition-[background-color,transform] hover:scale-105 hover:bg-white/20 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-marker min-[420px]:size-10"
+            className={`grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border border-white/25 bg-white/10 text-on-nav transition-[background-color,transform] hover:scale-105 hover:bg-white/20 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-marker min-[420px]:size-10 ${className}`}
             onClick={onClick}
             title={isDark ? t('nav.lightMode') : t('nav.darkMode')}
             type="button"

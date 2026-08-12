@@ -34,7 +34,7 @@ export default function Login() {
                 <div className="w-full max-w-md">
                     <div className="mb-12 flex items-center justify-between min-[900px]:justify-end">
                         <Link aria-label="10Xscale home" className="text-foreground min-[900px]:hidden" href="/">
-                            <BrandLogo className="h-8 w-auto [filter:invert(1)] dark:[filter:none]" />
+                            <BrandLogo className="h-8 w-auto" />
                         </Link>
                         <button
                             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}

@@ -6,6 +6,8 @@ use App\Enums\UserRole;
 use App\Models\SiteAppearance;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -33,8 +35,11 @@ class SiteAppearanceTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Dashboard/Appearance/Edit')
                 ->where('appearance.accent_color', '#FFE81A')
+                ->where('appearance.has_light_logo', false)
+                ->where('appearance.has_dark_logo', false)
+                ->where('appearance.light_logo_url', null)
                 ->where('appearanceRoutes.update', '/dashboard/appearance')
-                ->has('fontOptions', 2)
+                ->has('fontOptions', 5)
             );
     }
 
@@ -86,13 +91,93 @@ class SiteAppearanceTest extends TestCase
         $this->assertDatabaseCount('site_appearances', 0);
     }
 
+    public function test_admin_can_upload_one_logo_and_it_is_used_for_both_modes(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->post('/dashboard/appearance', [
+                ...SiteAppearance::DEFAULTS,
+                '_method' => 'put',
+                'light_logo' => $this->logoUpload('light.png'),
+            ])
+            ->assertRedirect('/dashboard/appearance')
+            ->assertSessionHas('success');
+
+        $appearance = SiteAppearance::query()->findOrFail(1);
+
+        $this->assertNotNull($appearance->light_logo_path);
+        $this->assertNull($appearance->dark_logo_path);
+        Storage::disk('public')->assertExists($appearance->light_logo_path);
+
+        $this->get('/')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('siteAppearance.has_light_logo', true)
+                ->where('siteAppearance.has_dark_logo', false)
+                ->where('siteAppearance.light_logo_url', fn ($url) => str_starts_with($url, '/site-appearance/logo/light?v='))
+                ->where('siteAppearance.dark_logo_url', fn ($url) => str_starts_with($url, '/site-appearance/logo/dark?v='))
+            );
+
+        $this->get('/site-appearance/logo/light')->assertOk();
+        $this->get('/site-appearance/logo/dark')->assertOk();
+    }
+
+    public function test_replacing_a_logo_removes_the_superseded_file(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+        Storage::disk('public')->put('site-appearance/old.png', $this->pngContents());
+        SiteAppearance::query()->create([
+            'id' => 1,
+            ...SiteAppearance::DEFAULTS,
+            'light_logo_path' => 'site-appearance/old.png',
+        ]);
+
+        $this->actingAs($admin)
+            ->post('/dashboard/appearance', [
+                ...SiteAppearance::DEFAULTS,
+                '_method' => 'put',
+                'light_logo' => $this->logoUpload('replacement.png'),
+            ])
+            ->assertRedirect('/dashboard/appearance');
+
+        $appearance = SiteAppearance::query()->findOrFail(1);
+
+        Storage::disk('public')->assertMissing('site-appearance/old.png');
+        Storage::disk('public')->assertExists($appearance->light_logo_path);
+    }
+
+    public function test_logo_upload_rejects_unsafe_files(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->from('/dashboard/appearance')
+            ->post('/dashboard/appearance', [
+                ...SiteAppearance::DEFAULTS,
+                '_method' => 'put',
+                'dark_logo' => UploadedFile::fake()->createWithContent('unsafe.svg', '<svg><script>alert(1)</script></svg>'),
+            ])
+            ->assertRedirect('/dashboard/appearance')
+            ->assertSessionHasErrors('dark_logo');
+
+        $this->assertDatabaseCount('site_appearances', 0);
+    }
+
     public function test_admin_can_restore_default_appearance(): void
     {
+        Storage::fake('public');
         $admin = User::factory()->admin()->create();
+        Storage::disk('public')->put('site-appearance/light.png', $this->pngContents());
+        Storage::disk('public')->put('site-appearance/dark.png', $this->pngContents());
         SiteAppearance::query()->create([
             'id' => 1,
             ...SiteAppearance::DEFAULTS,
             'accent_color' => '#7C3AED',
+            'light_logo_path' => 'site-appearance/light.png',
+            'dark_logo_path' => 'site-appearance/dark.png',
         ]);
 
         $this->actingAs($admin)
@@ -103,6 +188,20 @@ class SiteAppearanceTest extends TestCase
         $this->assertDatabaseHas('site_appearances', [
             'id' => 1,
             'accent_color' => SiteAppearance::DEFAULTS['accent_color'],
+            'light_logo_path' => null,
+            'dark_logo_path' => null,
         ]);
+        Storage::disk('public')->assertMissing('site-appearance/light.png');
+        Storage::disk('public')->assertMissing('site-appearance/dark.png');
+    }
+
+    private function logoUpload(string $name): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent($name, $this->pngContents());
+    }
+
+    private function pngContents(): string
+    {
+        return base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
     }
 }

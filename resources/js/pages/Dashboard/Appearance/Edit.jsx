@@ -1,5 +1,5 @@
 import { router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../Components/Dashboard/DashboardLayout';
 import PageHeader from '../../../Components/Dashboard/PageHeader';
 import { fontStacks } from '../../../siteAppearance';
@@ -33,12 +33,43 @@ const navigationFields = [
 ];
 
 export default function Edit({ appearance, appearanceRoutes, fontOptions }) {
-    const form = useForm(appearance);
+    const form = useForm({
+        ...appearance,
+        _method: 'put',
+        light_logo: null,
+        dark_logo: null,
+    });
     const [previewMode, setPreviewMode] = useState('light');
+    const lightUploadPreview = useObjectUrl(form.data.light_logo);
+    const darkUploadPreview = useObjectUrl(form.data.dark_logo);
+    const savedLightLogo = appearance.has_light_logo ? appearance.light_logo_url : null;
+    const savedDarkLogo = appearance.has_dark_logo ? appearance.dark_logo_url : null;
+    const rawLightLogo = lightUploadPreview ?? savedLightLogo;
+    const rawDarkLogo = darkUploadPreview ?? savedDarkLogo;
+    const logoPreviews = {
+        light: rawLightLogo ?? rawDarkLogo,
+        dark: rawDarkLogo ?? rawLightLogo,
+    };
 
     const submit = (event) => {
         event.preventDefault();
-        form.put(appearanceRoutes.update, { preserveScroll: true });
+        form.post(appearanceRoutes.update, {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => form.reset('light_logo', 'dark_logo'),
+        });
+    };
+
+    const setLogo = (name, file) => {
+        form.clearErrors(name);
+
+        if (file && file.size > 5 * 1024 * 1024) {
+            form.setData(name, null);
+            form.setError(name, 'The logo must be no larger than 5 MB.');
+            return;
+        }
+
+        form.setData(name, file);
     };
 
     const reset = () => {
@@ -57,6 +88,28 @@ export default function Edit({ appearance, appearanceRoutes, fontOptions }) {
 
             <form className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_430px]" onSubmit={submit}>
                 <div className="grid gap-6">
+                    <SettingsSection description="Upload a logo for each color mode. PNG, JPEG and WebP files up to 5 MB are supported. If one mode is empty, the other logo is used automatically." title="Website logos">
+                        <div className="grid gap-5 min-[700px]:grid-cols-2">
+                            <LogoUploadField
+                                error={form.errors.light_logo}
+                                fallback={!lightUploadPreview && !appearance.has_light_logo && appearance.has_dark_logo}
+                                label="Light mode logo"
+                                name="light_logo"
+                                onChange={(file) => setLogo('light_logo', file)}
+                                preview={lightUploadPreview ?? appearance.light_logo_url}
+                            />
+                            <LogoUploadField
+                                error={form.errors.dark_logo}
+                                fallback={!darkUploadPreview && !appearance.has_dark_logo && appearance.has_light_logo}
+                                label="Dark mode logo"
+                                name="dark_logo"
+                                onChange={(file) => setLogo('dark_logo', file)}
+                                preview={darkUploadPreview ?? appearance.dark_logo_url}
+                                previewDark
+                            />
+                        </div>
+                    </SettingsSection>
+
                     <SettingsSection description="The highlight, contrast and validation colors used across both themes." title="Brand colors">
                         <ColorGrid fields={brandFields} form={form} />
                     </SettingsSection>
@@ -90,9 +143,14 @@ export default function Edit({ appearance, appearanceRoutes, fontOptions }) {
                 </div>
 
                 <div className="grid gap-4 xl:sticky xl:top-[104px]">
-                    <AppearancePreview data={form.data} mode={previewMode} setMode={setPreviewMode} />
+                    <AppearancePreview data={form.data} logoPreviews={logoPreviews} mode={previewMode} setMode={setPreviewMode} />
 
                     <div className="flex flex-wrap gap-3 rounded-2xl border border-border-soft bg-surface p-4 shadow-sm">
+                        {form.hasErrors ? (
+                            <div className="w-full rounded-xl border border-leak/40 bg-leak/10 px-4 py-3 text-sm font-semibold text-leak" role="alert">
+                                The appearance could not be saved. Review the highlighted field errors and try again.
+                            </div>
+                        ) : null}
                         <button className="cursor-pointer rounded-xl bg-foreground px-5 py-3 font-[Archivo] text-sm font-bold text-page hover:bg-marker hover:text-marker-ink disabled:cursor-wait disabled:opacity-60" disabled={form.processing} type="submit">
                             {form.processing ? 'Saving…' : 'Save appearance'}
                         </button>
@@ -150,7 +208,28 @@ function SelectField({ children, error, label }) {
     );
 }
 
-function AppearancePreview({ data, mode, setMode }) {
+function LogoUploadField({ error, fallback, label, name, onChange, preview, previewDark = false }) {
+    return (
+        <div>
+            <label className="block text-sm font-semibold" htmlFor={name}>{label}</label>
+            <div className={`mt-2 grid min-h-40 place-items-center rounded-xl border border-dashed border-border-soft p-5 ${previewDark ? 'bg-[#111113]' : 'bg-[#f5f4ef]'}`}>
+                {preview ? (
+                    <img alt={`${label} preview`} className="max-h-24 max-w-full object-contain" src={preview} />
+                ) : (
+                    <span className={`text-center text-xs font-semibold ${previewDark ? 'text-white/60' : 'text-black/50'}`}>The built-in 10Xscale logo is currently in use.</span>
+                )}
+            </div>
+            <label className="mt-3 flex cursor-pointer items-center justify-center rounded-xl border border-border-soft bg-surface-muted px-4 py-3 text-sm font-bold hover:bg-marker hover:text-marker-ink" htmlFor={name}>
+                {preview && !fallback ? 'Replace logo' : 'Upload logo'}
+            </label>
+            <input accept="image/png,image/jpeg,image/webp" className="sr-only" id={name} name={name} onChange={(event) => onChange(event.target.files?.[0] ?? null)} type="file" />
+            {fallback ? <p className="mt-2 text-xs text-copy-muted">Currently using the other mode's logo as a fallback.</p> : null}
+            {error ? <p className="mt-2 text-xs font-medium text-leak">{error}</p> : null}
+        </div>
+    );
+}
+
+function AppearancePreview({ data, logoPreviews, mode, setMode }) {
     const dark = mode === 'dark';
     const page = dark ? data.dark_page_color : data.light_page_color;
     const surface = dark ? data.dark_surface_color : data.light_surface_color;
@@ -170,10 +249,19 @@ function AppearancePreview({ data, mode, setMode }) {
                 </div>
             </div>
 
-            <div className="p-4" style={{ backgroundColor: page, color: text, fontFamily: fontStacks[data.body_font] }}>
+            <div
+                className="p-4"
+                style={{
+                    '--site-font-display': fontStacks[data.display_font],
+                    '--site-font-sans': fontStacks[data.body_font],
+                    backgroundColor: page,
+                    color: text,
+                    fontFamily: 'var(--site-font-sans)',
+                }}
+            >
                 <div className="overflow-hidden rounded-xl border-2" style={{ borderColor: border }}>
                     <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: data.nav_background_color, color: data.nav_text_color }}>
-                        <span className="font-black" style={{ fontFamily: fontStacks[data.display_font] }}>10XSCALE</span>
+                        {logoPreviews[mode] ? <img alt="Website logo preview" className="h-8 w-auto max-w-28 object-contain" src={logoPreviews[mode]} /> : <span className="font-black" style={{ fontFamily: fontStacks[data.display_font] }}>10XSCALE</span>}
                         <span className="rounded-full px-3 py-1 text-xs font-bold" style={{ backgroundColor: data.accent_color, color: data.accent_text_color }}>Free audit</span>
                     </div>
                     <div className="p-5" style={{ backgroundColor: muted }}>
@@ -190,6 +278,24 @@ function AppearancePreview({ data, mode, setMode }) {
             </div>
         </section>
     );
+}
+
+function useObjectUrl(file) {
+    const [url, setUrl] = useState(null);
+
+    useEffect(() => {
+        if (!(file instanceof File)) {
+            setUrl(null);
+            return undefined;
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        setUrl(objectUrl);
+
+        return () => URL.revokeObjectURL(objectUrl);
+    }, [file]);
+
+    return url;
 }
 
 function validPickerColor(value) {
