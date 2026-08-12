@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'clickup' => [
+        'token' => env('CLICKUP_API_TOKEN'),
+        'audit_list_id' => env('CLICKUP_AUDIT_LIST_ID'),
+        'api_url' => env('CLICKUP_API_URL', 'https://api.clickup.com/api/v2'),
+    ],
+
 ];

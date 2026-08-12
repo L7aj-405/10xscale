@@ -46,6 +46,8 @@ Route::middleware(['auth', 'dashboard.role'])
             ->name('audit-requests.index');
 
         Route::middleware('admin')->group(function () {
+            Route::post('/audit-requests/{auditRequest}/clickup/retry', [DashboardAuditRequestController::class, 'retryClickUp'])
+                ->name('audit-requests.clickup.retry');
             Route::resource('brand-logos', DashboardBrandLogoController::class)
                 ->only(['index', 'store', 'update', 'destroy']);
             Route::resource('blog-posts', DashboardBlogPostController::class)
