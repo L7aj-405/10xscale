@@ -15,7 +15,7 @@ import StatsStrip from '../Components/StatsStrip';
 import TeamSection from '../Components/TeamSection';
 import { useI18n } from '../i18n/I18nContext';
 
-export default function Landing({ brandLogos = [] }) {
+export default function Landing({ brandLogos = [], teamMembers = [] }) {
     const { t } = useI18n();
 
     return (
@@ -39,7 +39,7 @@ export default function Landing({ brandLogos = [] }) {
                 <CaseStudiesSection />
                 <FitSection />
                 <ProcessSection />
-                <TeamSection />
+                <TeamSection teamMembers={teamMembers} />
                 <FaqSection />
                 <AuditSection />
             </main>

@@ -7,14 +7,13 @@ const navigation = [
     { label: 'Overview', href: '/dashboard', icon: HomeIcon },
     { label: 'Audit requests', href: '/dashboard/audit-requests', icon: InboxIcon },
     { label: 'Brand logos', href: '/dashboard/brand-logos', icon: ImageIcon, adminOnly: true },
+    { label: 'Team members', href: '/dashboard/team-members', icon: UsersIcon, adminOnly: true },
     { label: 'Site appearance', href: '/dashboard/appearance', icon: PaletteIcon, adminOnly: true },
     { label: 'Users', href: '/dashboard/users', icon: UsersIcon, adminOnly: true },
 ];
 
 export default function DashboardLayout({ children, title }) {
     const { auth, flash } = usePage().props;
-    console.log('INERTIA PROPS:', usePage().props);
-console.log('AUTH:', auth);
     const { url } = usePage();
     const { isDark, toggleTheme } = useTheme();
     const [sidebarOpen, setSidebarOpen] = useState(false);

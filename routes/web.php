@@ -6,8 +6,10 @@ use App\Http\Controllers\Dashboard\AuditRequestController as DashboardAuditReque
 use App\Http\Controllers\Dashboard\BrandLogoController as DashboardBrandLogoController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\SiteAppearanceController;
+use App\Http\Controllers\Dashboard\TeamMemberController as DashboardTeamMemberController;
 use App\Http\Controllers\Dashboard\UserController as DashboardUserController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\TeamMemberPhotoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'landing'])->name('home');
@@ -20,6 +22,8 @@ Route::post('/audit-requests', AuditRequestController::class)
 
 Route::get('/brand-logos/{brandLogo}/image', BrandLogoImageController::class)
     ->name('brand-logos.image');
+Route::get('/team-members/{teamMember}/photo', TeamMemberPhotoController::class)
+    ->name('team-members.photo');
 
 Route::middleware(['auth', 'dashboard.role'])
     ->prefix('dashboard')
@@ -31,6 +35,8 @@ Route::middleware(['auth', 'dashboard.role'])
 
         Route::middleware('admin')->group(function () {
             Route::resource('brand-logos', DashboardBrandLogoController::class)
+                ->only(['index', 'store', 'update', 'destroy']);
+            Route::resource('team-members', DashboardTeamMemberController::class)
                 ->only(['index', 'store', 'update', 'destroy']);
             Route::get('/appearance', [SiteAppearanceController::class, 'edit'])
                 ->name('appearance.edit');
