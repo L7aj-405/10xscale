@@ -26,22 +26,10 @@ class StoreTeamMemberRequest extends FormRequest
     private function memberRules(array $additional): array
     {
         return [
-            'name' => ['required', 'array'],
-            'name.en' => ['required', 'string', 'max:120'],
-            'name.fr' => ['nullable', 'string', 'max:120'],
-            'name.ar' => ['nullable', 'string', 'max:120'],
-            'role' => ['required', 'array'],
-            'role.en' => ['required', 'string', 'max:120'],
-            'role.fr' => ['nullable', 'string', 'max:120'],
-            'role.ar' => ['nullable', 'string', 'max:120'],
-            'bio' => ['required', 'array'],
-            'bio.en' => ['required', 'string', 'max:1000'],
-            'bio.fr' => ['nullable', 'string', 'max:1000'],
-            'bio.ar' => ['nullable', 'string', 'max:1000'],
-            'photo_label' => ['nullable', 'array'],
-            'photo_label.en' => ['nullable', 'string', 'max:100'],
-            'photo_label.fr' => ['nullable', 'string', 'max:100'],
-            'photo_label.ar' => ['nullable', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:120'],
+            'role' => ['required', 'string', 'max:120'],
+            'bio' => ['required', 'string', 'max:1000'],
+            'photo_label' => ['nullable', 'string', 'max:100'],
             'initials' => ['required', 'string', 'max:6'],
             'linkedin_url' => ['nullable', 'url:http,https', 'max:2048'],
             'x_url' => ['nullable', 'url:http,https', 'max:2048'],
@@ -55,6 +43,10 @@ class StoreTeamMemberRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'name' => trim((string) $this->input('name')),
+            'role' => trim((string) $this->input('role')),
+            'bio' => trim((string) $this->input('bio')),
+            'photo_label' => $this->nullableTrimmed('photo_label'),
             'initials' => mb_strtoupper(trim((string) $this->input('initials'))),
             'linkedin_url' => $this->nullableTrimmed('linkedin_url'),
             'x_url' => $this->nullableTrimmed('x_url'),

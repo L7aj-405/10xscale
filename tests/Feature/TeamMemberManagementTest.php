@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Contracts\TeamMemberTranslator;
 use App\Enums\UserRole;
+use App\Exceptions\TeamMemberTranslationException;
 use App\Models\TeamMember;
 use App\Models\User;
 use Database\Seeders\TeamMemberSeeder;
@@ -28,11 +30,12 @@ class TeamMemberManagementTest extends TestCase
     public function test_admin_can_create_a_localized_team_member_with_a_photo(): void
     {
         Storage::fake('public');
+        $this->useFakeTranslator();
         $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)
             ->post('/dashboard/team-members', [
-                ...$this->attributes('Jane Doe', 7, true),
+                ...$this->payload('Jane Doe', 7, true),
                 'photo' => $this->photoUpload('jane.png'),
             ])
             ->assertRedirect('/dashboard/team-members')
@@ -41,7 +44,8 @@ class TeamMemberManagementTest extends TestCase
         $member = TeamMember::query()->sole();
 
         $this->assertSame('Jane Doe', $member->name['en']);
-        $this->assertSame('جين دو', $member->name['ar']);
+        $this->assertSame('AR: Jane Doe', $member->name['ar']);
+        $this->assertSame('FR: Email Strategist', $member->role['fr']);
         $this->assertSame(7, $member->position);
         Storage::disk('public')->assertExists($member->photo_path);
     }
@@ -49,6 +53,7 @@ class TeamMemberManagementTest extends TestCase
     public function test_admin_can_update_and_replace_a_team_member_photo(): void
     {
         Storage::fake('public');
+        $this->useFakeTranslator();
         $admin = User::factory()->admin()->create();
         Storage::disk('public')->put('team-members/old.png', $this->pngContents());
         $member = TeamMember::query()->create([
@@ -58,7 +63,7 @@ class TeamMemberManagementTest extends TestCase
 
         $this->actingAs($admin)
             ->put("/dashboard/team-members/{$member->id}", [
-                ...$this->attributes('Updated Name', 9, false),
+                ...$this->payload('Updated Name', 9, false),
                 'photo' => $this->photoUpload('updated.png'),
             ])
             ->assertRedirect('/dashboard/team-members');
@@ -66,13 +71,14 @@ class TeamMemberManagementTest extends TestCase
         $member->refresh();
 
         $this->assertSame('Updated Name', $member->name['en']);
+        $this->assertSame('FR: Updated Name', $member->name['fr']);
         $this->assertSame(9, $member->position);
         $this->assertFalse($member->is_active);
         Storage::disk('public')->assertMissing('team-members/old.png');
         Storage::disk('public')->assertExists($member->photo_path);
     }
 
-    public function test_admin_can_delete_a_team_member_and_their_photo(): void
+    public function test_admin_can_soft_delete_a_team_member_after_confirmation(): void
     {
         Storage::fake('public');
         $admin = User::factory()->admin()->create();
@@ -86,8 +92,29 @@ class TeamMemberManagementTest extends TestCase
             ->delete("/dashboard/team-members/{$member->id}")
             ->assertRedirect('/dashboard/team-members');
 
-        $this->assertModelMissing($member);
-        Storage::disk('public')->assertMissing('team-members/delete.png');
+        $this->assertSoftDeleted($member);
+        Storage::disk('public')->assertExists('team-members/delete.png');
+    }
+
+    public function test_translation_failure_returns_a_form_error_without_saving(): void
+    {
+        $this->app->instance(TeamMemberTranslator::class, new class implements TeamMemberTranslator
+        {
+            public function translate(array $fields): array
+            {
+                throw new TeamMemberTranslationException('Translation service unavailable.');
+            }
+        });
+
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->from('/dashboard/team-members')
+            ->post('/dashboard/team-members', $this->payload('Jane Doe', 7, true))
+            ->assertRedirect('/dashboard/team-members')
+            ->assertSessionHasErrors('translation');
+
+        $this->assertDatabaseCount('team_members', 0);
     }
 
     public function test_landing_page_receives_only_active_members_in_display_order(): void
@@ -146,6 +173,38 @@ class TeamMemberManagementTest extends TestCase
             'position' => $position,
             'is_active' => $active,
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function payload(string $name, int $position, bool $active): array
+    {
+        return [
+            'name' => $name,
+            'role' => 'Email Strategist',
+            'bio' => 'Builds retention systems.',
+            'photo_label' => 'Add photo',
+            'initials' => 'JD',
+            'linkedin_url' => 'https://linkedin.com/in/jane',
+            'x_url' => null,
+            'website_url' => 'https://example.com',
+            'position' => $position,
+            'is_active' => $active,
+        ];
+    }
+
+    private function useFakeTranslator(): void
+    {
+        $this->app->instance(TeamMemberTranslator::class, new class implements TeamMemberTranslator
+        {
+            public function translate(array $fields): array
+            {
+                return collect($fields)->mapWithKeys(fn (string $text, string $field) => [
+                    $field => ['en' => $text, 'fr' => "FR: {$text}", 'ar' => "AR: {$text}"],
+                ])->all();
+            }
+        });
     }
 
     private function photoUpload(string $name): UploadedFile

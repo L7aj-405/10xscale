@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Contracts\TeamMemberTranslator;
+use App\Exceptions\TeamMemberTranslationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTeamMemberRequest;
 use App\Http\Requests\UpdateTeamMemberRequest;
 use App\Models\TeamMember;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use RuntimeException;
@@ -15,6 +18,8 @@ use Throwable;
 
 class TeamMemberController extends Controller
 {
+    public function __construct(private readonly TeamMemberTranslator $translator) {}
+
     public function index(): Response
     {
         return Inertia::render('Dashboard/TeamMembers/Index', [
@@ -27,7 +32,7 @@ class TeamMemberController extends Controller
 
     public function store(StoreTeamMemberRequest $request): RedirectResponse
     {
-        $attributes = $request->safe()->except('photo');
+        $attributes = $this->translatedAttributes($request->safe()->except('photo'));
         $path = $request->file('photo')?->store('team-members', 'public');
 
         if ($request->hasFile('photo') && ! $path) {
@@ -53,7 +58,7 @@ class TeamMemberController extends Controller
 
     public function update(UpdateTeamMemberRequest $request, TeamMember $teamMember): RedirectResponse
     {
-        $attributes = $request->safe()->except('photo');
+        $attributes = $this->translatedAttributes($request->safe()->except('photo'));
         $newPath = $request->file('photo')?->store('team-members', 'public');
         $oldPath = $teamMember->photo_path;
 
@@ -84,16 +89,10 @@ class TeamMemberController extends Controller
 
     public function destroy(TeamMember $teamMember): RedirectResponse
     {
-        $path = $teamMember->photo_path;
-
         $teamMember->delete();
 
-        if ($path) {
-            Storage::disk('public')->delete($path);
-        }
-
         return to_route('dashboard.team-members.index')
-            ->with('success', 'Team member deleted successfully.');
+            ->with('success', 'Team member removed from the website.');
     }
 
     /**
@@ -118,6 +117,31 @@ class TeamMemberController extends Controller
             'is_active' => $teamMember->is_active,
             'update_url' => route('dashboard.team-members.update', $teamMember, absolute: false),
             'delete_url' => route('dashboard.team-members.destroy', $teamMember, absolute: false),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    private function translatedAttributes(array $attributes): array
+    {
+        try {
+            $translations = $this->translator->translate([
+                'name' => $attributes['name'],
+                'role' => $attributes['role'],
+                'bio' => $attributes['bio'],
+                'photo_label' => $attributes['photo_label'] ?? '',
+            ]);
+        } catch (TeamMemberTranslationException $exception) {
+            throw ValidationException::withMessages([
+                'translation' => $exception->getMessage(),
+            ]);
+        }
+
+        return [
+            ...$attributes,
+            ...$translations,
         ];
     }
 }
