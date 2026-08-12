@@ -26,6 +26,40 @@
     --site-nav-text-color: #ffffff;
     --site-font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
     --site-font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --site-logo-height-mobile: 30px;
+    --site-logo-height-desktop: 42px;
+    --site-logo-height-admin: 48px;
+}
+
+.site-brand-logo {
+    width: auto;
+    height: var(--site-logo-height-mobile) !important;
+    max-width: min(230px, calc(100vw - 190px));
+}
+
+.site-public-navigation-mobile {
+    min-height: max(60px, calc(var(--site-logo-height-mobile) + 14px));
+}
+
+.site-brand-logo-admin {
+    width: auto;
+    height: var(--site-logo-height-admin) !important;
+    max-width: 220px;
+}
+
+.site-admin-logo-container {
+    min-height: max(80px, calc(var(--site-logo-height-admin) + 24px));
+}
+
+@media (min-width: 1280px) {
+    .site-brand-logo {
+        height: var(--site-logo-height-desktop) !important;
+        max-width: 280px;
+    }
+
+    .site-public-navigation-desktop {
+        min-height: max(66px, calc(var(--site-logo-height-desktop) + 14px));
+    }
 }
 
 @theme {

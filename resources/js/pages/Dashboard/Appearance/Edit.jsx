@@ -108,6 +108,35 @@ export default function Edit({ appearance, appearanceRoutes, fontOptions }) {
                                 previewDark
                             />
                         </div>
+                        <div className="mt-7 grid gap-5 border-t border-border-soft pt-6 min-[700px]:grid-cols-2 min-[1100px]:grid-cols-3">
+                            <LogoSizeControl
+                                error={form.errors.logo_height_mobile}
+                                label="Mobile logo height"
+                                max={100}
+                                min={20}
+                                name="logo_height_mobile"
+                                onChange={(value) => form.setData('logo_height_mobile', value)}
+                                value={form.data.logo_height_mobile}
+                            />
+                            <LogoSizeControl
+                                error={form.errors.logo_height_desktop}
+                                label="Desktop logo height"
+                                max={160}
+                                min={24}
+                                name="logo_height_desktop"
+                                onChange={(value) => form.setData('logo_height_desktop', value)}
+                                value={form.data.logo_height_desktop}
+                            />
+                            <LogoSizeControl
+                                error={form.errors.logo_height_admin}
+                                label="Admin sidebar logo height"
+                                max={120}
+                                min={24}
+                                name="logo_height_admin"
+                                onChange={(value) => form.setData('logo_height_admin', value)}
+                                value={form.data.logo_height_admin}
+                            />
+                        </div>
                     </SettingsSection>
 
                     <SettingsSection description="The highlight, contrast and validation colors used across both themes." title="Brand colors">
@@ -229,6 +258,44 @@ function LogoUploadField({ error, fallback, label, name, onChange, preview, prev
     );
 }
 
+function LogoSizeControl({ error, label, max, min, name, onChange, value }) {
+    const numericValue = Number(value) || min;
+
+    return (
+        <div>
+            <div className="flex items-center justify-between gap-4">
+                <label className="text-sm font-semibold" htmlFor={`${name}-range`}>{label}</label>
+                <div className="flex items-center gap-1 rounded-lg border border-border-soft bg-surface-muted px-2">
+                    <input
+                        aria-label={`${label} in pixels`}
+                        className="w-12 bg-transparent py-1.5 text-right font-['IBM_Plex_Mono'] text-sm font-semibold outline-none"
+                        max={max}
+                        min={min}
+                        onChange={(event) => onChange(event.target.value)}
+                        type="number"
+                        value={value}
+                    />
+                    <span className="text-xs text-copy-muted">px</span>
+                </div>
+            </div>
+            <input
+                className="mt-3 w-full cursor-pointer accent-[var(--color-marker)]"
+                id={`${name}-range`}
+                max={max}
+                min={min}
+                onChange={(event) => onChange(Number(event.target.value))}
+                type="range"
+                value={numericValue}
+            />
+            <div className="mt-1 flex justify-between font-['IBM_Plex_Mono'] text-[10px] text-copy-muted">
+                <span>{min}px</span>
+                <span>{max}px</span>
+            </div>
+            {error ? <p className="mt-2 text-xs font-medium text-leak">{error}</p> : null}
+        </div>
+    );
+}
+
 function AppearancePreview({ data, logoPreviews, mode, setMode }) {
     const dark = mode === 'dark';
     const page = dark ? data.dark_page_color : data.light_page_color;
@@ -261,7 +328,16 @@ function AppearancePreview({ data, logoPreviews, mode, setMode }) {
             >
                 <div className="overflow-hidden rounded-xl border-2" style={{ borderColor: border }}>
                     <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: data.nav_background_color, color: data.nav_text_color }}>
-                        {logoPreviews[mode] ? <img alt="Website logo preview" className="h-8 w-auto max-w-28 object-contain" src={logoPreviews[mode]} /> : <span className="font-black" style={{ fontFamily: fontStacks[data.display_font] }}>10XSCALE</span>}
+                        {logoPreviews[mode] ? (
+                            <img
+                                alt="Website logo preview"
+                                className="w-auto max-w-44 object-contain"
+                                src={logoPreviews[mode]}
+                                style={{ height: `${data.logo_height_desktop}px` }}
+                            />
+                        ) : (
+                            <span className="font-black" style={{ fontFamily: fontStacks[data.display_font], fontSize: `${Math.max(14, Number(data.logo_height_desktop) * 0.42)}px` }}>10XSCALE</span>
+                        )}
                         <span className="rounded-full px-3 py-1 text-xs font-bold" style={{ backgroundColor: data.accent_color, color: data.accent_text_color }}>Free audit</span>
                     </div>
                     <div className="p-5" style={{ backgroundColor: muted }}>
@@ -273,6 +349,22 @@ function AppearancePreview({ data, logoPreviews, mode, setMode }) {
                             <p className="mt-1 text-xs opacity-70">Consistent across every page and both themes.</p>
                         </div>
                         <button className="mt-4 rounded-full px-5 py-2.5 text-sm font-black" style={{ backgroundColor: data.accent_color, color: data.accent_text_color, fontFamily: fontStacks[data.display_font] }} type="button">Get started</button>
+                    </div>
+                </div>
+
+                <div className="mt-4 overflow-hidden rounded-xl border-2" style={{ borderColor: border }}>
+                    <div className="px-4 py-2 font-['IBM_Plex_Mono'] text-[10px] font-semibold tracking-[0.1em] uppercase" style={{ backgroundColor: surface }}>Admin sidebar</div>
+                    <div className="flex items-center px-5 py-3" style={{ backgroundColor: data.nav_background_color, color: data.nav_text_color, minHeight: `${Math.max(64, Number(data.logo_height_admin) + 20)}px` }}>
+                        {logoPreviews[mode] ? (
+                            <img
+                                alt="Admin sidebar logo preview"
+                                className="w-auto max-w-[220px] object-contain"
+                                src={logoPreviews[mode]}
+                                style={{ height: `${data.logo_height_admin}px` }}
+                            />
+                        ) : (
+                            <span className="font-black" style={{ fontFamily: fontStacks[data.display_font], fontSize: `${Math.max(14, Number(data.logo_height_admin) * 0.42)}px` }}>10XSCALE</span>
+                        )}
                     </div>
                 </div>
             </div>

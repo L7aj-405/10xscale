@@ -152,11 +152,11 @@ export default function Navigation() {
 
 function MobileHeader({ auditHref, homeHref, menuOpen, setMenuOpen, t }) {
     return (
-        <div className="relative flex h-[60px] items-center px-2 min-[1280px]:hidden" dir="ltr">
+        <div className="site-public-navigation-mobile relative flex items-center px-2 min-[1280px]:hidden" dir="ltr">
             <MenuToggle menuOpen={menuOpen} onClick={() => setMenuOpen((open) => !open)} t={t} />
 
             <LogoLink className="absolute left-1/2 -translate-x-1/2" homeHref={homeHref} t={t}>
-                <BrandLogo className="h-[25px] w-auto min-[420px]:h-[27px]" />
+                <BrandLogo className="h-[25px] w-auto min-[420px]:h-[27px]" dynamicSize />
             </LogoLink>
 
             <a
@@ -197,9 +197,9 @@ function MobilePreferences({ isDark, language, languages, setLanguage, t, toggle
 
 function DesktopHeader({ auditHref, homeHref, isDark, isItemActive, language, languages, navigationItems, setActiveSection, setLanguage, t, toggleTheme }) {
     return (
-        <div className="hidden h-[66px] items-center justify-between gap-3 py-0 pe-3 ps-6 min-[1280px]:flex">
+        <div className="site-public-navigation-desktop hidden items-center justify-between gap-3 py-0 pe-3 ps-6 min-[1280px]:flex">
             <LogoLink homeHref={homeHref} t={t}>
-                <BrandLogo className="h-[30px] w-auto" />
+                <BrandLogo className="h-[30px] w-auto" dynamicSize />
             </LogoLink>
 
             <div className="flex items-center gap-0.5 rounded-full bg-nav-panel p-[5px]">

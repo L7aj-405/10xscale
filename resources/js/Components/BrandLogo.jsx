@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 
-export default function BrandLogo({ className = '' }) {
+export default function BrandLogo({ adminSize = false, className = '', dynamicSize = false }) {
     const appearance = usePage().props.siteAppearance ?? {};
     const lightLogo = appearance.light_logo_url ?? appearance.dark_logo_url;
     const darkLogo = appearance.dark_logo_url ?? appearance.light_logo_url;
@@ -8,8 +8,8 @@ export default function BrandLogo({ className = '' }) {
     if (lightLogo || darkLogo) {
         return (
             <>
-                <img alt="" aria-hidden="true" className={`object-contain dark:hidden ${className}`} src={lightLogo ?? darkLogo} />
-                <img alt="" aria-hidden="true" className={`hidden object-contain dark:block ${className}`} src={darkLogo ?? lightLogo} />
+                <img alt="" aria-hidden="true" className={`object-contain dark:hidden ${dynamicSize ? 'site-brand-logo' : ''} ${adminSize ? 'site-brand-logo-admin' : ''} ${className}`} src={lightLogo ?? darkLogo} />
+                <img alt="" aria-hidden="true" className={`hidden object-contain dark:block ${dynamicSize ? 'site-brand-logo' : ''} ${adminSize ? 'site-brand-logo-admin' : ''} ${className}`} src={darkLogo ?? lightLogo} />
             </>
         );
     }
@@ -17,7 +17,7 @@ export default function BrandLogo({ className = '' }) {
     return (
         <svg
             aria-hidden="true"
-            className={className}
+            className={`${dynamicSize ? 'site-brand-logo' : ''} ${adminSize ? 'site-brand-logo-admin' : ''} ${className}`}
             viewBox="0 0 509 275"
             xmlns="http://www.w3.org/2000/svg"
         >

@@ -40,6 +40,9 @@ class UpdateSiteAppearanceRequest extends FormRequest
             'nav_text_color' => $color,
             'body_font' => ['required', Rule::in(array_keys(SiteAppearance::FONT_OPTIONS))],
             'display_font' => ['required', Rule::in(array_keys(SiteAppearance::FONT_OPTIONS))],
+            'logo_height_mobile' => ['required', 'integer', 'min:20', 'max:100'],
+            'logo_height_desktop' => ['required', 'integer', 'min:24', 'max:160'],
+            'logo_height_admin' => ['required', 'integer', 'min:24', 'max:120'],
             'light_logo' => ['nullable', File::image()->types(['png', 'jpg', 'jpeg', 'webp'])->max(5 * 1024)],
             'dark_logo' => ['nullable', File::image()->types(['png', 'jpg', 'jpeg', 'webp'])->max(5 * 1024)],
         ];

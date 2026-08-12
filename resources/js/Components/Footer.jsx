@@ -16,7 +16,7 @@ export default function Footer() {
                     className="text-on-nav focus-visible:rounded-sm focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-marker"
                     href={landingLink('#top')}
                 >
-                    <BrandLogo className="h-[26px] w-auto" />
+                    <BrandLogo className="h-[26px] w-auto" dynamicSize />
                 </a>
                 <p className="max-w-[760px] font-['IBM_Plex_Mono'] text-xs tracking-[0.04em]">
                     {t('footer.tagline')}

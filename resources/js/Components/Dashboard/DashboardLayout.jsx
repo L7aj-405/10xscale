@@ -7,6 +7,7 @@ const navigation = [
     { label: 'Overview', href: '/dashboard', icon: HomeIcon },
     { label: 'Audit requests', href: '/dashboard/audit-requests', icon: InboxIcon },
     { label: 'Brand logos', href: '/dashboard/brand-logos', icon: ImageIcon, adminOnly: true },
+    { label: 'Blog posts', href: '/dashboard/blog-posts', icon: DocumentIcon, adminOnly: true },
     { label: 'Team members', href: '/dashboard/team-members', icon: UsersIcon, adminOnly: true },
     { label: 'Site appearance', href: '/dashboard/appearance', icon: PaletteIcon, adminOnly: true },
     { label: 'Users', href: '/dashboard/users', icon: UsersIcon, adminOnly: true },
@@ -28,9 +29,9 @@ export default function DashboardLayout({ children, title }) {
             <Head title={title} />
 
             <aside className={`fixed inset-y-0 left-0 z-[60] flex w-[278px] flex-col bg-nav text-on-nav transition-transform duration-300 min-[1024px]:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <div className="flex h-20 items-center border-b border-white/10 px-7">
+                <div className="site-admin-logo-container flex items-center border-b border-white/10 px-7 py-3">
                     <Link aria-label="10Xscale home" href="/">
-                        <BrandLogo className="h-8 w-auto" />
+                        <BrandLogo adminSize className="h-8 w-auto" />
                     </Link>
                 </div>
 
@@ -144,6 +145,7 @@ function InboxIcon({ className }) { return <svg aria-hidden="true" className={cl
 function UsersIcon({ className }) { return <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" /></svg>; }
 function PaletteIcon({ className }) { return <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1.5a2 2 0 0 0 0-4H12a1.5 1.5 0 0 1 0-3h2.5A6.5 6.5 0 0 0 21 7.5C21 5 17 3 12 3Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.8" /><circle cx="7.5" cy="10.5" r="1" fill="currentColor" /><circle cx="10" cy="6.8" r="1" fill="currentColor" /><circle cx="15" cy="7" r="1" fill="currentColor" /></svg>; }
 function ImageIcon({ className }) { return <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24"><rect height="16" rx="2" stroke="currentColor" strokeWidth="1.8" width="18" x="3" y="4" /><circle cx="8.5" cy="9" r="1.5" stroke="currentColor" strokeWidth="1.5" /><path d="m4 17 4.5-4.5 3.5 3 2-2 6 5" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.8" /></svg>; }
+function DocumentIcon({ className }) { return <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6V3Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.8" /><path d="M14 3v5h4M9 12h6m-6 4h6" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" /></svg>; }
 function LogoutIcon({ className }) { return <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5m5 5H3m12-9h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" /></svg>; }
 function MenuIcon({ className }) { return <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeLinecap="round" strokeWidth="2" /></svg>; }
 function SunIcon({ className }) { return <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" /></svg>; }

@@ -6,8 +6,13 @@ import Navigation from '../Components/Navigation';
 import Reveal from '../Components/Reveal';
 import { useI18n } from '../i18n/I18nContext';
 
-export default function Blog() {
-    const { t } = useI18n();
+export default function Blog({ posts = [] }) {
+    const { language, t } = useI18n();
+    const description = {
+        en: 'Practical, actionable retention and Klaviyo guidance for growing Shopify teams.',
+        fr: 'Des conseils pratiques et concrets sur la rétention et Klaviyo pour les équipes Shopify en croissance.',
+        ar: 'إرشادات عملية وقابلة للتطبيق حول الاحتفاظ وKlaviyo لفرق Shopify النامية.',
+    }[language];
 
     return (
         <>
@@ -29,15 +34,16 @@ export default function Blog() {
                                 <Highlight>{t('blog.titleHighlight')}</Highlight>
                             </h1>
                             <p className="mt-5 max-w-[720px] text-[17.5px] leading-[1.55] text-copy">
-                                {t('blog.description')}
+                                {description}
                             </p>
                         </Reveal>
 
                         <div className="grid grid-cols-1 gap-[22px] min-[760px]:grid-cols-6">
-                            {t('blog.articles').map((article, index) => (
-                                <BlogCard article={article} index={index} key={index} />
+                            {posts.map((article, index) => (
+                                <BlogCard article={article} index={index} key={article.id} />
                             ))}
                         </div>
+                        {!posts.length ? <p className="rounded-xl border-2 border-dashed border-border-soft bg-surface-muted px-6 py-14 text-center text-copy-muted">{{ en: 'No published articles yet.', fr: 'Aucun article publié pour le moment.', ar: 'لا توجد مقالات منشورة حالياً.' }[language]}</p> : null}
                     </div>
                 </section>
             </main>

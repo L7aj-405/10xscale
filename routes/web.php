@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuditRequestController;
+use App\Http\Controllers\BlogPostCoverController;
+use App\Http\Controllers\BlogPostVideoController;
 use App\Http\Controllers\BrandLogoImageController;
 use App\Http\Controllers\Dashboard\AuditRequestController as DashboardAuditRequestController;
+use App\Http\Controllers\Dashboard\BlogPostController as DashboardBlogPostController;
 use App\Http\Controllers\Dashboard\BrandLogoController as DashboardBrandLogoController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\SiteAppearanceController;
@@ -15,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'landing'])->name('home');
 Route::get('/blog', [PageController::class, 'blog'])->name('blog');
+Route::get('/blog/{blogPost:slug}', [PageController::class, 'showBlogPost'])->name('blog.show');
 Route::get('/thank-you', [PageController::class, 'thankYou'])->name('thank-you');
 
 Route::post('/audit-requests', AuditRequestController::class)
@@ -25,6 +29,10 @@ Route::get('/brand-logos/{brandLogo}/image', BrandLogoImageController::class)
     ->name('brand-logos.image');
 Route::get('/team-members/{teamMember}/photo', TeamMemberPhotoController::class)
     ->name('team-members.photo');
+Route::get('/blog-posts/{blogPost}/cover', BlogPostCoverController::class)
+    ->name('blog-posts.cover');
+Route::get('/blog-posts/{blogPost}/video', BlogPostVideoController::class)
+    ->name('blog-posts.video');
 Route::get('/site-appearance/logo/{mode}', SiteAppearanceLogoController::class)
     ->whereIn('mode', ['light', 'dark'])
     ->name('site-appearance.logo');
@@ -39,6 +47,8 @@ Route::middleware(['auth', 'dashboard.role'])
 
         Route::middleware('admin')->group(function () {
             Route::resource('brand-logos', DashboardBrandLogoController::class)
+                ->only(['index', 'store', 'update', 'destroy']);
+            Route::resource('blog-posts', DashboardBlogPostController::class)
                 ->only(['index', 'store', 'update', 'destroy']);
             Route::resource('team-members', DashboardTeamMemberController::class)
                 ->only(['index', 'store', 'update', 'destroy']);

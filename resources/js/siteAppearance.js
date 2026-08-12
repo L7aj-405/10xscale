@@ -43,4 +43,16 @@ export function applySiteAppearance(appearance = {}) {
     if (fontStacks[appearance.display_font]) {
         root.style.setProperty('--site-font-display', fontStacks[appearance.display_font]);
     }
+
+    if (Number.isInteger(Number(appearance.logo_height_mobile))) {
+        root.style.setProperty('--site-logo-height-mobile', `${appearance.logo_height_mobile}px`);
+    }
+
+    if (Number.isInteger(Number(appearance.logo_height_desktop))) {
+        root.style.setProperty('--site-logo-height-desktop', `${appearance.logo_height_desktop}px`);
+    }
+
+    if (Number.isInteger(Number(appearance.logo_height_admin))) {
+        root.style.setProperty('--site-logo-height-admin', `${appearance.logo_height_admin}px`);
+    }
 }

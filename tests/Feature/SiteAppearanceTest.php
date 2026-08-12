@@ -38,6 +38,9 @@ class SiteAppearanceTest extends TestCase
                 ->where('appearance.has_light_logo', false)
                 ->where('appearance.has_dark_logo', false)
                 ->where('appearance.light_logo_url', null)
+                ->where('appearance.logo_height_mobile', 30)
+                ->where('appearance.logo_height_desktop', 42)
+                ->where('appearance.logo_height_admin', 48)
                 ->where('appearanceRoutes.update', '/dashboard/appearance')
                 ->has('fontOptions', 5)
             );
@@ -52,6 +55,9 @@ class SiteAppearanceTest extends TestCase
             'accent_text_color' => '#FFFFFF',
             'body_font' => 'archivo',
             'display_font' => 'instrument-sans',
+            'logo_height_mobile' => 40,
+            'logo_height_desktop' => 54,
+            'logo_height_admin' => 72,
         ];
 
         $this->actingAs($admin)
@@ -63,6 +69,9 @@ class SiteAppearanceTest extends TestCase
             'id' => 1,
             'accent_color' => '#7C3AED',
             'body_font' => 'archivo',
+            'logo_height_mobile' => 40,
+            'logo_height_desktop' => 54,
+            'logo_height_admin' => 72,
         ]);
 
         $this->get('/')
@@ -70,6 +79,9 @@ class SiteAppearanceTest extends TestCase
                 ->where('siteAppearance.accent_color', '#7C3AED')
                 ->where('siteAppearance.accent_text_color', '#FFFFFF')
                 ->where('siteAppearance.display_font', 'instrument-sans')
+                ->where('siteAppearance.logo_height_mobile', 40)
+                ->where('siteAppearance.logo_height_desktop', 54)
+                ->where('siteAppearance.logo_height_admin', 72)
             );
     }
 
@@ -80,13 +92,16 @@ class SiteAppearanceTest extends TestCase
             ...SiteAppearance::DEFAULTS,
             'accent_color' => 'yellow',
             'body_font' => 'remote-font',
+            'logo_height_mobile' => 10,
+            'logo_height_desktop' => 161,
+            'logo_height_admin' => 121,
         ];
 
         $this->actingAs($admin)
             ->from('/dashboard/appearance')
             ->put('/dashboard/appearance', $appearance)
             ->assertRedirect('/dashboard/appearance')
-            ->assertSessionHasErrors(['accent_color', 'body_font']);
+            ->assertSessionHasErrors(['accent_color', 'body_font', 'logo_height_mobile', 'logo_height_desktop', 'logo_height_admin']);
 
         $this->assertDatabaseCount('site_appearances', 0);
     }

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(TeamMemberSeeder::class);
+        $this->call(BlogSeeder::class);
 
         $email = env('ADMIN_EMAIL');
         $password = env('ADMIN_PASSWORD');

@@ -34,6 +34,9 @@ class SiteAppearance extends Model
         'nav_text_color' => '#FFFFFF',
         'body_font' => 'instrument-sans',
         'display_font' => 'archivo',
+        'logo_height_mobile' => 30,
+        'logo_height_desktop' => 42,
+        'logo_height_admin' => 48,
         'light_logo_path' => null,
         'dark_logo_path' => null,
     ];
@@ -57,12 +60,15 @@ class SiteAppearance extends Model
         'nav_text_color',
         'body_font',
         'display_font',
+        'logo_height_mobile',
+        'logo_height_desktop',
+        'logo_height_admin',
         'light_logo_path',
         'dark_logo_path',
     ];
 
     /**
-     * @return array<string, string|null>
+     * @return array<string, int|string|null>
      */
     public static function current(): array
     {
@@ -81,7 +87,7 @@ class SiteAppearance extends Model
     /**
      * Return browser-safe appearance settings with versioned logo URLs.
      *
-     * @return array<string, bool|string|null>
+     * @return array<string, bool|int|string|null>
      */
     public static function shared(): array
     {
